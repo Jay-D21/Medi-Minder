@@ -51,6 +51,7 @@ class MediMinderApp extends StatelessWidget {
       ],
       child: MaterialApp.router(
         title: 'MediMinder',
+        debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system,
