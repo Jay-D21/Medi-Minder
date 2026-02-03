@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'services/local_storage_service.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +15,10 @@ void main() async {
   // Initialize Local Storage Service (Registers adapters and opens boxes)
   final localStorageService = LocalStorageService();
   await localStorageService.init();
+
+  // Initialize Notification Service
+  final notificationService = NotificationService();
+  await notificationService.init();
 
   runApp(const MediMinderApp());
 }
