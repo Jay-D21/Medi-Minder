@@ -193,11 +193,11 @@ class _TodayScreenState extends State<TodayScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.medical_services, color: Colors.white, size: 28),
-              const SizedBox(width: 12),
-              const Text(
+              Icon(Icons.medical_services, color: Colors.white, size: 28),
+              SizedBox(width: 12),
+              Text(
                 'Health Summary',
                 style: TextStyle(
                   color: Colors.white,

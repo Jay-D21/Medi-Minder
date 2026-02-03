@@ -26,7 +26,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             child: Column(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 40,
                   backgroundColor: Colors.white24,
                   child: Icon(Icons.person, size: 40, color: Colors.white),
@@ -52,15 +52,15 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 24),
           Text('Settings', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
-          _Tile(icon: Icons.notifications, title: 'Notifications'),
-          _Tile(icon: Icons.palette, title: 'Appearance'),
-          _Tile(icon: Icons.backup, title: 'Backup'),
-          _Tile(icon: Icons.security, title: 'Privacy'),
+          const _Tile(icon: Icons.notifications, title: 'Notifications'),
+          const _Tile(icon: Icons.palette, title: 'Appearance'),
+          const _Tile(icon: Icons.backup, title: 'Backup'),
+          const _Tile(icon: Icons.security, title: 'Privacy'),
           const SizedBox(height: 24),
           Text('About', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
-          _Tile(icon: Icons.info, title: 'App Info'),
-          _Tile(icon: Icons.help, title: 'Help'),
+          const _Tile(icon: Icons.info, title: 'App Info'),
+          const _Tile(icon: Icons.help, title: 'Help'),
           const SizedBox(height: 32),
           ElevatedButton.icon(
             onPressed: () async {

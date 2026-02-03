@@ -19,7 +19,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
 
   String _dosageUnit = 'mg';
   String _frequencyType = 'daily';
-  List<TimeOfDay> _scheduleTimes = [const TimeOfDay(hour: 8, minute: 0)];
+  final List<TimeOfDay> _scheduleTimes = [const TimeOfDay(hour: 8, minute: 0)];
   int _selectedColorIndex = 0;
   int _selectedIconIndex = 0;
 
@@ -187,7 +187,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: DropdownButtonFormField<String>(
-                            value: _dosageUnit,
+                            initialValue: _dosageUnit,
                             decoration: const InputDecoration(
                               labelText: 'Unit',
                               border: OutlineInputBorder(),
@@ -229,7 +229,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      value: _frequencyType,
+                      initialValue: _frequencyType,
                       decoration: const InputDecoration(
                         labelText: 'Frequency',
                         prefixIcon: Icon(Icons.repeat),
