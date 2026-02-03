@@ -9,6 +9,7 @@ import 'utils/router.dart';
 import 'providers/auth_provider.dart';
 import 'providers/medication_provider.dart';
 import 'providers/dose_provider.dart';
+import 'providers/ad_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +48,7 @@ class MediMinderApp extends StatelessWidget {
             return doseProvider;
           },
         ),
+        ChangeNotifierProvider(create: (_) => AdProvider()),
       ],
       child: MaterialApp.router(
         title: 'MediMinder',
