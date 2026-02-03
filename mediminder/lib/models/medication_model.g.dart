@@ -30,13 +30,15 @@ class MedicationModelAdapter extends TypeAdapter<MedicationModel> {
       lowSupplyThreshold: fields[10] as int,
       isActive: fields[11] as bool,
       createdAt: fields[12] as DateTime,
+      specificDays: (fields[13] as List?)?.cast<int>(),
+      intervalDays: fields[14] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MedicationModel obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.medId)
       ..writeByte(1)
@@ -62,7 +64,11 @@ class MedicationModelAdapter extends TypeAdapter<MedicationModel> {
       ..writeByte(11)
       ..write(obj.isActive)
       ..writeByte(12)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(13)
+      ..write(obj.specificDays)
+      ..writeByte(14)
+      ..write(obj.intervalDays);
   }
 
   @override

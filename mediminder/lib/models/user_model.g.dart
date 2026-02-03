@@ -19,19 +19,18 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
     return UserModel(
       userId: fields[0] as String,
       email: fields[1] as String,
-      displayName: fields[2] as String,
+      displayName: fields[2] as String?,
       timezone: fields[3] as String,
-      soundEnabled: fields[4] as bool,
+      soundPreferences: (fields[4] as Map).cast<String, dynamic>(),
       isPremium: fields[5] as bool,
       createdAt: fields[6] as DateTime,
-      isGuest: fields[7] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.userId)
       ..writeByte(1)
@@ -41,13 +40,11 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(3)
       ..write(obj.timezone)
       ..writeByte(4)
-      ..write(obj.soundEnabled)
+      ..write(obj.soundPreferences)
       ..writeByte(5)
       ..write(obj.isPremium)
       ..writeByte(6)
-      ..write(obj.createdAt)
-      ..writeByte(7)
-      ..write(obj.isGuest);
+      ..write(obj.createdAt);
   }
 
   @override
