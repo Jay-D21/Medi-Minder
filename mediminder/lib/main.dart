@@ -7,6 +7,8 @@ import 'services/notification_service.dart';
 import 'themes/app_theme.dart';
 import 'utils/router.dart';
 import 'providers/auth_provider.dart';
+import 'providers/medication_provider.dart';
+import 'providers/dose_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +38,15 @@ class MediMinderApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => MedicationProvider()),
+        ChangeNotifierProxyProvider<MedicationProvider, DoseProvider>(
+          create: (_) => DoseProvider(),
+          update: (_, medProvider, doseProvider) {
+            doseProvider ??= DoseProvider();
+            doseProvider.loadTodayDoses(medProvider.medications);
+            return doseProvider;
+          },
+        ),
       ],
       child: MaterialApp.router(
         title: 'MediMinder',
