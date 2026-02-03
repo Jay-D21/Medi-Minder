@@ -177,14 +177,14 @@ class _TodayScreenState extends State<TodayScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF2D9CDB), Color(0xFF56CCF2)],
+          colors: [Color(0xFF1a237e), Color(0xFF3949ab)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2D9CDB).withOpacity(0.3),
+            color: const Color(0xFF1a237e).withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),

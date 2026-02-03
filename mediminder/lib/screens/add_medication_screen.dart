@@ -24,7 +24,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
   int _selectedIconIndex = 0;
 
   final List<Color> _colors = [
-    const Color(0xFF2D9CDB),
+    const Color(0xFF1a237e),
     const Color(0xFF27AE60),
     const Color(0xFFEB5757),
     const Color(0xFFF2994A),

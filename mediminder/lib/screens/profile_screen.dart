@@ -20,7 +20,7 @@ class ProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF2D9CDB), Color(0xFF56CCF2)],
+                colors: [Color(0xFF1a237e), Color(0xFF3949ab)],
               ),
               borderRadius: BorderRadius.circular(20),
             ),
@@ -91,7 +91,7 @@ class _Tile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF2D9CDB)),
+        leading: Icon(icon, color: const Color(0xFF1a237e)),
         title: Text(title),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {},
