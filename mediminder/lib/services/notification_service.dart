@@ -129,4 +129,22 @@ class NotificationService {
     print('Background Action: ${response.actionId}');
     // Would typically interact with Hive/Isolate here
   }
+
+  Future<void> showLowSupplyAlert(MedicationModel med) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(channelId, channelName,
+            channelDescription: channelDescription,
+            importance: Importance.high,
+            priority: Priority.high,
+            ticker: 'Low Supply Alert');
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    await _flutterLocalNotificationsPlugin.show(
+        ('supply_${med.medId}'.hashCode).abs(),
+        'Low Supply: ${med.name}',
+        'Only ${med.currentSupply} doses remaining. Time to refill!',
+        platformChannelSpecifics,
+        payload: 'supply|${med.medId}');
+  }
 }

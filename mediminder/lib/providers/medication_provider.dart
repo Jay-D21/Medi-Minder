@@ -99,7 +99,7 @@ class MedicationProvider with ChangeNotifier {
 
       // Check for low supply
       if (med.currentSupply <= med.lowSupplyThreshold) {
-        // Trigger low supply alert (could be a local notification or UI banner)
+        _notificationService.showLowSupplyAlert(med);
       }
       notifyListeners();
     }
