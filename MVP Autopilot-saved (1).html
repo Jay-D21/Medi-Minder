@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVP Blueprint Report: MediMinder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Roboto:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #121212; /* Dark background */
+            color: #e0e0e0; /* Light gray text */
+            line-height: 1.75;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: #ffffff; /* White headings */
+        }
+
+        a {
+            color: #84e3ff; /* Cyan accent for links */
+            text-decoration: none;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        a:hover {
+            color: #c9f0ff;
+            text-shadow: 0 0 8px rgba(132, 227, 255, 0.7);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a5a5a;
+        }
+
+        /* Glassmorphism-like effect for cards/sections */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            backdrop-filter: blur(6.5px);
+            -webkit-backdrop-filter: blur(6.5px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 12px;
+        }
+
+        /* Code block styling */
+        pre {
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        code {
+            font-family: 'Roboto Mono', monospace; /* A monospace font for code */
+            color: #a3d6a3; /* Light green for code */
+        }
+
+        pre code {
+            color: #a3d6a3; /* Ensure code inside pre also has this color */
+            background-color: transparent; /* Remove background from inline code within pre */
+        }
+
+        /* Micro-animations for interactive elements */
+        .interactive-element {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        .interactive-element:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(132, 227, 255, 0.2);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Could be used if a dark mode toggle was implemented, but sticking to static dark for this request.
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'display': ['Outfit', 'sans-serif'],
+                        'body': ['Roboto', 'sans-serif'],
+                        'mono': ['Roboto Mono', 'monospace'],
+                    },
+                    colors: {
+                        'primary': '#1f2937', // Dark background
+                        'secondary': '#111827', // Slightly darker background
+                        'accent': '#84e3ff', // Cyan accent
+                        'accent-hover': '#c9f0ff',
+                        'text-light': '#e0e0e0',
+                        'text-dark': '#333333',
+                        'heading-text': '#ffffff',
+                    },
+                    gradient: {
+                        'to-br-accent': 'linear-gradient(to bottom right, #84e3ff, #b3e9ff)',
+                        'to-br-purple': 'linear-gradient(to bottom right, #7f00ff, #ff00ff)',
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.1)',
+                        'glass-inset': 'inset 0 4px 6px rgba(0,0,0,0.2)'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-primary text-text-light">
+
+    <div class="container mx-auto px-4 py-12 max-w-6xl">
+
+        <!-- Header Section -->
+        <header class="text-center mb-16">
+            <h1 class="text-5xl md:text-6xl font-display text-heading-text mb-4 leading-tight animate-fadeInUp">
+                MVP Blueprint Report: MediMinder Mobile App
+            </h1>
+            <p class="text-xl md:text-2xl font-body text-accent opacity-80 animate-fadeInUp delay-200">
+                A comprehensive plan for building a medication adherence mobile application.
+            </p>
+        </header>
+
+        <!-- Main Content Area -->
+        <main>
+            <!-- Section: Idea Summary -->
+            <section class="glass-card p-8 mb-12 interactive-element animate-slideInLeft">
+                <h2 class="text-4xl font-display text-accent mb-6 border-b-2 border-accent pb-3 inline-block">1. Idea Summary</h2>
+                <p class="mb-4 text-lg font-body">
+                    <strong>MediMinder</strong> is a mobile application designed to improve medication adherence by providing reliable, user-friendly reminders for individuals managing daily prescriptions and supplements.
+                </p>
+                <div class="ml-4">
+                    <p class="mb-2 text-lg font-body">
+                        *   <strong>The Problem:</strong> Non-adherence to medication schedules is a significant health issue, often caused by forgetfulness, complex schedules, or confusion, leading to worsened health outcomes and increased healthcare costs.
+                    </p>
+                    <p class="mb-2 text-lg font-body">
+                        *   <strong>The Solution:</strong> An intuitive mobile interface that simplifies scheduling, delivers timely push notifications, and tracks adherence history.
+                    </p>
+                    <p class="mb-0 text-lg font-body">
+                        *   <strong>Value Proposition:</strong> Peace of mind for patients and caregivers through a "set it and forget it" system that ensures no dose is missed.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section: Market Research -->
+            <section class="glass-card p-8 mb-12 interactive-element animate-slideInRight delay-200">
+                <h2 class="text-4xl font-display text-accent mb-6 border-b-2 border-accent pb-3 inline-block">2. Market Research</h2>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4">Target Personas</h3>
+                <ol class="list-decimal ml-6 mb-6 text-lg font-body">
+                    <li>
+                        <strong>The Chronic Care Patient:</strong> Individuals (often 50+) managing multiple daily medications for conditions like hypertension or diabetes. They need high accessibility and simple interfaces.
+                    </li>
+                    <li>
+                        <strong>The Busy Professional:</strong> Younger users taking supplements or temporary antibiotics who forget doses due to a hectic schedule. They value speed and minimal friction.
+                    </li>
+                    <li>
+                        <strong>The Caregiver:</strong> Family members managing medication schedules for elderly parents or children.
+                    </li>
+                </ol>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4">Competitive Landscape</h3>
+                <ul class="list-disc ml-6 mb-6 text-lg font-body">
+                    <li>
+                        <strong>Medisafe:</strong> Market leader with robust features (interaction checking, family sync) but can feel bloated for simple needs.
+                    </li>
+                    <li>
+                        <strong>Apple Health / Google Fit:</strong> Built-in ecosystem tools. Pros: Integrated. Cons: Buried within general health data; lack specialized adherence incentives.
+                    </li>
+                    <li>
+                        <strong>MyTherapy:</strong> Focuses on health tracking alongside meds.
+                    </li>
+                </ul>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4">Market Opportunity</h3>
+                <p class="text-lg font-body">
+                    The global mHealth apps market is expanding rapidly. There is a specific gap for a "zero-friction" MVP that focuses purely on the *reminder* mechanism without the complexity of full health management suites, targeting users overwhelmed by complex apps.
+                </p>
+            </section>
+
+            <!-- Section: MVP and Validation Details -->
+            <section class="glass-card p-8 mb-12 interactive-element animate-slideInLeft delay-400">
+                <h2 class="text-4xl font-display text-accent mb-6 border-b-2 border-accent pb-3 inline-block">3. MVP and Validation Details</h2>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4">Core "Must-Have" Features (MVP Scope)</h3>
+                <ul class="list-disc ml-6 mb-6 text-lg font-body">
+                    <li>
+                        <strong>Medication Inventory:</strong> Ability to input medication name, dosage, and visual type (pill, liquid, injection).
+                    </li>
+                    <li>
+                        <strong>Scheduler:</strong> Flexible frequency settings (Daily, Weekly, Specific Intervals) and time selection.
+                    </li>
+                    <li>
+                        <strong>Smart Notifications:</strong> Push notifications and local alarms that persist until acknowledged.
+                    </li>
+                    <li>
+                        <strong>Actionable Dashboard:</strong> A "Today" view showing upcoming and taken doses.
+                    </li>
+                    <li>
+                        <strong>Adherence Logging:</strong> Simple "Taken," "Skipped," or "Snoozed" actions logged in a history view.
+                    </li>
+                </ul>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4">Validation Strategy</h3>
+                <ul class="list-disc ml-6 mb-6 text-lg font-body">
+                    <li>
+                        <strong>Alpha Testing:</strong> Release a TestFlight/APK build to a controlled group of 50 users taking 3+ medications daily.
+                    </li>
+                    <li>
+                        <strong>Metric:</strong> Target a <strong>Retention Rate &gt; 40%</strong> after 30 days.
+                    </li>
+                    <li>
+                        <strong>Landing Page Test:</strong> Run ads targeting specific conditions (e.g., "ADHD medication reminder") to measure Click-Through Rate (CTR) and sign-up intent before full-scale coding.
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Section: Product Requirements Document (PRD) -->
+            <section class="glass-card p-8 mb-12 interactive-element animate-slideInRight delay-600">
+                <h2 class="text-4xl font-display text-accent mb-6 border-b-2 border-accent pb-3 inline-block">4. Product Requirements Document (PRD)</h2>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4">Functional Requirements</h3>
+                <p class="mb-4 text-lg font-body">
+                    *   <strong>Auth:</strong> Simple email/password sign-up or Social Login (Google/Apple) to back up data. <em>Option for "Guest Mode" (local storage only) to lower entry barrier.</em>
+                </p>
+                <p class="mb-4 text-lg font-body">
+                    *   <strong>Database:</strong> Real-time synchronization of medication lists and logs.
+                </p>
+                <p class="mb-0 text-lg font-body">
+                    *   <strong>Local Notifications:</strong> Critical requirement; notifications must trigger even if the device is in airplane mode.
+                </p>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4 mt-8">User Stories</h3>
+                <ul class="list-disc ml-6 mb-6 text-lg font-body">
+                    <li>
+                        <strong>US-1:</strong> As a <em>user</em>, I want to scan a barcode or type a drug name so that I can quickly add it to my list.
+                    </li>
+                    <li>
+                        <strong>US-2:</strong> As a <em>user</em>, I want to set a reminder for 8:00 AM daily so that I don't forget my morning pill.
+                    </li>
+                    <li>
+                        <strong>US-3:</strong> As a <em>user</em>, I want to tap "Taken" directly from the lock screen notification so that I don't have to open the app.
+                    </li>
+                    <li>
+                        <strong>US-4:</strong> As a <em>user</em>, I want to view a calendar of my past week so I can confirm if I missed any doses.
+                    </li>
+                </ul>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4 mt-8">Success Metrics (KPIs)</h3>
+                <ol class="list-decimal ml-6 text-lg font-body">
+                    <li>
+                        <strong>Daily Active Users (DAU):</strong> Number of unique users opening the app daily.
+                    </li>
+                    <li>
+                        <strong>Adherence Rate:</strong> Percentage of scheduled doses marked as "Taken."
+                    </li>
+                    <li>
+                        <strong>Time-to-Value:</strong> Average time from app install to first reminder set (Target: &lt; 2 minutes).
+                    </li>
+                </ol>
+            </section>
+
+            <!-- Section: Design Plan (UI/UX) -->
+            <section class="glass-card p-8 mb-12 interactive-element animate-slideInLeft delay-800">
+                <h2 class="text-4xl font-display text-accent mb-6 border-b-2 border-accent pb-3 inline-block">5. Design Plan (UI/UX)</h2>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4">Design Principles</h3>
+                <ul class="list-disc ml-6 mb-6 text-lg font-body">
+                    <li>
+                        <strong>Accessibility First:</strong> Large typography, high contrast ratios (WCAG AA compliance), and clear iconography for elderly users.
+                    </li>
+                    <li>
+                        <strong>Focus State:</strong> The main screen should only show *what is due now or next*. Do not clutter the view with future/past data unless requested.
+                    </li>
+                    <li>
+                        <strong>Positive Reinforcement:</strong> Visual rewards (confetti, green checks) for completing daily streaks.
+                    </li>
+                </ul>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4">Key Screens</h3>
+                <ul class="list-disc ml-6 text-lg font-body">
+                    <li>
+                        <strong>Onboarding:</strong> 3-step wizard to set up the first medication immediately.
+                    </li>
+                    <li>
+                        <strong>Home/Dashboard:</strong> Timeline view. Top section: "Next Dose." Bottom section: "Rest of Day."
+                    </li>
+                    <li>
+                        <strong>Add Med Modal:</strong> Form with Name, Dosage (mg), Shape Icon, Frequency, Time.
+                    </li>
+                    <li>
+                        <strong>History:</strong> Calendar view with green dots (taken) and red dots (missed).
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Section: Engineering Plan -->
+            <section class="glass-card p-8 mb-12 interactive-element animate-slideInRight delay-1000">
+                <h2 class="text-4xl font-display text-accent mb-6 border-b-2 border-accent pb-3 inline-block">6. Engineering Plan</h2>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4">Technology Stack</h3>
+                <p class="mb-4 text-lg font-body">
+                    *   <strong>Framework:</strong> <strong>Flutter</strong> (Dart).
+                    <br>
+                    *   <em>Reasoning:</em> Excellent performance, single codebase for iOS and Android, and superior handling of native plugins (essential for reliable local notifications).
+                </p>
+                <p class="mb-4 text-lg font-body">
+                    *   <strong>Backend:</strong> <strong>Firebase</strong> (Google).
+                    <br>
+                    *   <em>Authentication:</em> Firebase Auth.
+                    <br>
+                    *   <em>Database:</em> Cloud Firestore (NoSQL) for syncing data across devices.
+                    <br>
+                    *   <em>Analytics:</em> Google Analytics for Firebase.
+                </p>
+                <p class="mb-0 text-lg font-body">
+                    *   <strong>Local Storage:</strong> SQLite or Hive (for offline functionality and caching).
+                </p>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4 mt-8">System Architecture</h3>
+                <p class="mb-4 text-lg font-body">
+                    *   <strong>Local-First Architecture:</strong> The app must function primarily offline. The schedule logic resides on the device.
+                    <br>
+                    *   <em>Write Path:</em> User saves med -> Write to Local DB -> Schedule Local Notification -> Sync to Firestore (background).
+                    <br>
+                    *   <em>Read Path:</em> Read from Local DB (instant load) -> Update from Firestore if network available.
+                </p>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4 mt-8">Data Model (Simplified)</h3>
+                <pre class="font-mono text-sm"><code class="language-json">
+Collection: Users
+  userID, email, settings (timezone, sound preferences)
+
+Collection: Medications
+  medID, userID, name, dosage, frequencyType, scheduleTimes (array), iconID
+
+Collection: Logs
+  logID, medID, timestamp, status (taken/skipped/snoozed)
+                </code></pre>
+            </section>
+
+            <!-- Section: Hosting and Deployment Strategy -->
+            <section class="glass-card p-8 mb-12 interactive-element animate-slideInLeft delay-1200">
+                <h2 class="text-4xl font-display text-accent mb-6 border-b-2 border-accent pb-3 inline-block">7. Hosting and Deployment Strategy</h2>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4">Infrastructure</h3>
+                <p class="mb-4 text-lg font-body">
+                    *   <strong>Backend:</strong> Serverless architecture via Firebase. No need to manage EC2 instances or containers for the MVP phase.
+                </p>
+                <p class="mb-0 text-lg font-body">
+                    *   <strong>Media Assets:</strong> Firebase Storage for any custom medication images (if feature is added).
+                </p>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4 mt-8">CI/CD Pipeline</h3>
+                <p class="mb-4 text-lg font-body">
+                    *   <strong>Tool:</strong> <strong>Codemagic</strong> or <strong>GitHub Actions</strong>.
+                </p>
+                <p class="mb-0 text-lg font-body">
+                    *   <strong>Workflow:</strong>
+                    <br>
+                    1.  Code Commit -> Run Unit Tests.
+                    <br>
+                    2.  Build iOS (IPA) and Android (AAB).
+                    <br>
+                    3.  Auto-deploy to TestFlight (iOS) and Google Play Internal Testing (Android).
+                </p>
+
+                <h3 class="text-3xl font-display text-accent-hover mb-4 mt-8">Scaling Considerations</h3>
+                <p class="mb-4 text-lg font-body">
+                    *   <strong>Database optimization:</strong> As logs grow, implement data archiving (move logs older than 1 year to cold storage) to maintain query performance in Firestore.
+                </p>
+                <p class="mb-0 text-lg font-body">
+                    *   <strong>Notification Engine:</strong> If moving to complex server-side triggers (e.g., "Refill Reminders"), integrate Firebase Cloud Messaging (FCM) functions.
+                </p>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Basic Fade-in Animations -->
+    <style>
+        .animate-fadeInUp {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+        .animate-slideInLeft {
+            animation: slideInLeft 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+        .animate-slideInRight {
+            animation: slideInRight 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        .animate-fadeInUp.delay-200 { animation-delay: 0.2s; }
+        .animate-fadeInUp.delay-400 { animation-delay: 0.4s; }
+        .animate-slideInLeft.delay-200 { animation-delay: 0.2s; }
+        .animate-slideInLeft.delay-400 { animation-delay: 0.4s; }
+        .animate-slideInLeft.delay-600 { animation-delay: 0.6s; }
+        .animate-slideInLeft.delay-800 { animation-delay: 0.8s; }
+        .animate-slideInLeft.delay-1000 { animation-delay: 1.0s; }
+        .animate-slideInLeft.delay-1200 { animation-delay: 1.2s; }
+        .animate-slideInRight.delay-200 { animation-delay: 0.2s; }
+        .animate-slideInRight.delay-400 { animation-delay: 0.4s; }
+        .animate-slideInRight.delay-600 { animation-delay: 0.6s; }
+        .animate-slideInRight.delay-800 { animation-delay: 0.8s; }
+        .animate-slideInRight.delay-1000 { animation-delay: 1.0s; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+
+</body>
+</html>
