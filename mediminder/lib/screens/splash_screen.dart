@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -45,8 +45,8 @@ class _SplashScreenState extends State<SplashScreen> {
               size: 100,
               color: Colors.white,
             ),
-            const SizedBox(height: 24),
-            const Text(
+            SizedBox(height: 24),
+            Text(
               'MediMinder',
               style: TextStyle(
                 fontSize: 32,

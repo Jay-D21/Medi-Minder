@@ -49,8 +49,8 @@ class SupplyIndicator extends StatelessWidget {
           ],
         ),
         if (isLow)
-          Padding(
-            padding: const EdgeInsets.only(top: 4.0),
+          const Padding(
+            padding: EdgeInsets.only(top: 4.0),
             child: Text(
               'Low',
               style: TextStyle(color: Colors.red, fontSize: 10),

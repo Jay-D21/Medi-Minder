@@ -23,7 +23,6 @@ class _SignupScreenState extends State<SignupScreen> {
         await authProvider.signUpWithEmail(
           _emailController.text.trim(),
           _passwordController.text.trim(),
-          _nameController.text.trim(),
         );
         if (mounted && authProvider.error == null) {
           context.go('/home/today');

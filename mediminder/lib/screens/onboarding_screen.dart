@@ -42,7 +42,7 @@ class OnboardingScreen extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Provider.of<AuthProvider>(context, listen: false)
-                      .setGuestMode(true);
+                      .continueAsGuest();
                   context.go('/home/today');
                 },
                 child: const Text('Continue as Guest'),

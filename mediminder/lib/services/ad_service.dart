@@ -1,5 +1,4 @@
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:flutter/foundation.dart';
 
 class AdService {
   // Test IDs for development, Real IDs for production

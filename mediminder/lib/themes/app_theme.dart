@@ -21,12 +21,7 @@ class AppTheme {
         primary: primaryBlue,
         secondary: successGreen,
         surface: Colors.white,
-        background: canvasWhite,
-        error: errorCoral,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
         onSurface: Colors.black87,
-        onBackground: Colors.black87,
         onError: Colors.white,
       ),
       fontFamily: 'Inter',
@@ -57,11 +52,11 @@ class AppTheme {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
-      cardTheme: CardTheme(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: Colors.white,
-      ),
+      // cardTheme: const CardTheme(
+      //   elevation: 2,
+      //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
+      //   color: Colors.white,
+      // ),
     );
   }
 
@@ -76,12 +71,7 @@ class AppTheme {
         primary: primaryBlue,
         secondary: successGreen,
         surface: darkSurface,
-        background: darkBackground,
-        error: errorCoral,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
         onSurface: Color(0xFFE0E0E0), // 90% White
-        onBackground: Color(0xFFE0E0E0),
         onError: Colors.white,
       ),
       fontFamily: 'Inter',
@@ -115,11 +105,11 @@ class AppTheme {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
-      cardTheme: CardTheme(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: darkSurface,
-      ),
+      // cardTheme: const CardTheme(
+      //   elevation: 2,
+      //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
+      //   color: darkSurface,
+      // ),
     );
   }
 }

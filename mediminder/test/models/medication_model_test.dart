@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mediminder/models/medication_model.dart';
-import 'package:hive/hive.dart';
 
 void main() {
   group('MedicationModel Tests', () {

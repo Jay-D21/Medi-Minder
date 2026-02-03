@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mediminder/models/medication_model.dart';
-import 'package:mediminder/models/dose_log_model.dart';
 import 'package:mediminder/services/schedule_service.dart';
 
 void main() {

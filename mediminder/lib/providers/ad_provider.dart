@@ -48,7 +48,7 @@ class AdProvider with ChangeNotifier {
         );
       },
       onFailed: (error) {
-        print('Interstitial loading failed: $error');
+        debugPrint('Interstitial loading failed: $error');
         // Retry logic could go here
       },
     );
@@ -74,7 +74,7 @@ class AdProvider with ChangeNotifier {
   BannerAd createBanner(VoidCallback onLoaded) {
     return _adService.createBannerAd(
       onLoaded: (_) => onLoaded(),
-      onFailed: (ad, error) => print('Banner failed: $error'),
+      onFailed: (ad, error) => debugPrint('Banner failed: $error'),
     );
   }
 }
