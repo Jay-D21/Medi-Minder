@@ -36,13 +36,16 @@ class ScheduleService {
   }
 
   bool _isScheduledForDate(MedicationModel med, DateTime date) {
-    if (med.frequencyType == 'Daily') {
+    final freq = med.frequencyType.toLowerCase();
+    if (freq == 'daily') {
       return true;
-    } else if (med.frequencyType == 'Every X Days') {
+    } else if (freq == 'every x days' || freq == 'every_x_days') {
       // Logic: (date - createdAt) % interval == 0
       final diff = date.difference(med.createdAt).inDays;
       return diff % (med.intervalDays ?? 1) == 0;
-    } else if (med.frequencyType == 'Specific Days') {
+    } else if (freq == 'specific days' ||
+        freq == 'specific_days' ||
+        freq == 'weekly') {
       // Logic: Check if date.weekday is in specificDays list
       // Note: DateTime weekday 1=Mon, 7=Sun
       // Our specificDays list might store strings or ints. Assuming List<int> 1-7 for MVP.

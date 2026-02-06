@@ -77,6 +77,11 @@ class LocalStorageService {
     return logs;
   }
 
+  Future<void> deleteDoseLog(String logId) async {
+    final box = Hive.box<DoseLogModel>(doseLogBoxName);
+    await box.delete(logId);
+  }
+
   Future<void> clearAll() async {
     await Hive.box<UserModel>(userBoxName).clear();
     await Hive.box<MedicationModel>(medicationBoxName).clear();

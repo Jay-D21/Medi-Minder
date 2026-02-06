@@ -101,4 +101,33 @@ class DoseProvider with ChangeNotifier {
     // Update local state is similar to taken...
     notifyListeners();
   }
+
+  Future<void> undoDose(String medId, DateTime scheduledTime) async {
+    // Revert to 'scheduled' or delete log.
+    // Since loadTodayDoses merges schedule with logs, deleting the log is best if it was just an action.
+    // However, saving as 'scheduled' is safer if we want to track that it was reverted?
+    // Actually, deleting is better because it falls back to the generated schedule.
+
+    final logId = '${medId}_${scheduledTime.millisecondsSinceEpoch}';
+    await _localStorageService.deleteDoseLog(logId);
+
+    // Update local state -> remove the log so it falls back to scheduled or update it locally
+    // Since we don't restart the load process, we can just find it and set status to 'scheduled' locally
+    // or reload. Reloading is safer but slower.
+    // Let's just update locally.
+
+    final index = _todayDoses.indexWhere((d) =>
+        d.medId == medId && d.scheduledTime.isAtSameMomentAs(scheduledTime));
+
+    if (index != -1) {
+      // Create a temporary 'scheduled' version
+      _todayDoses[index] = DoseLogModel(
+          logId: logId,
+          medId: medId,
+          scheduledTime: scheduledTime,
+          actionTime: DateTime.now(),
+          status: 'scheduled'); // Fallback status
+      notifyListeners();
+    }
+  }
 }

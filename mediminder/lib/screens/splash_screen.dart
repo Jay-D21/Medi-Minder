@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _navigateToHome() async {
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
-      context.go('/home/today'); // Go directly to home - no sign in required
+      context.go('/home/today');
     }
   }
 
@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF1a237e), Color(0xFF0d47a1), Color(0xFF01579b)],
+            colors: [Color(0xFF1a237e), Color(0xFF3949ab)],
           ),
         ),
         child: Center(
@@ -63,53 +63,55 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // App Logo - Pill bottle icon matching screenshot
                   Container(
-                    width: 120,
-                    height: 120,
+                    width: 100,
+                    height: 100,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
+                      color: const Color(0xFF3949ab),
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.medication_rounded,
-                      size: 60,
-                      color: Color(0xFF1a237e),
+                    child: Center(
+                      child: Image.asset(
+                        'Logo/Medi Minder Logo.png',
+                        width: 50,
+                        height: 50,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   const Text(
                     'MediMinder',
                     style: TextStyle(
-                      fontSize: 36,
+                      fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
-                      letterSpacing: 1.5,
+                      letterSpacing: 1,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Never miss a dose',
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white.withOpacity(0.8),
-                      letterSpacing: 0.5,
+                      fontSize: 14,
+                      color: Colors.white.withValues(alpha: 0.8),
                     ),
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 40),
                   SizedBox(
                     width: 24,
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.white.withOpacity(0.8),
+                        Colors.white.withValues(alpha: 0.8),
                       ),
                     ),
                   ),

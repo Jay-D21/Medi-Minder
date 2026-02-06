@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../themes/app_theme.dart';
 
 class MainShell extends StatelessWidget {
   final Widget child;
@@ -17,15 +18,20 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
     final currentIndex = _getIndex(location);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          // In dark mode, surface color (1E1E1E) is good. Light mode white.
+          color: isDark ? AppTheme.darkSurface : Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.08),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),
@@ -42,24 +48,28 @@ class MainShell extends StatelessWidget {
                   label: 'Today',
                   isSelected: currentIndex == 0,
                   onTap: () => context.go('/home/today'),
+                  isDark: isDark,
                 ),
                 _NavItem(
                   icon: Icons.medication_rounded,
                   label: 'Meds',
                   isSelected: currentIndex == 1,
                   onTap: () => context.go('/home/meds'),
+                  isDark: isDark,
                 ),
                 _NavItem(
                   icon: Icons.history_rounded,
                   label: 'History',
                   isSelected: currentIndex == 2,
                   onTap: () => context.go('/home/history'),
+                  isDark: isDark,
                 ),
                 _NavItem(
                   icon: Icons.person_rounded,
                   label: 'Profile',
                   isSelected: currentIndex == 3,
                   onTap: () => context.go('/home/profile'),
+                  isDark: isDark,
                 ),
               ],
             ),
@@ -75,17 +85,25 @@ class _NavItem extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final bool isDark;
 
   const _NavItem({
     required this.icon,
     required this.label,
     required this.isSelected,
     required this.onTap,
+    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected ? const Color(0xFF1a237e) : Colors.grey.shade400;
+    // Light mode: Primary (Indigo) when selected, Grey when not.
+    // Dark mode: Primary (Light Indigo) when selected, Grey when not.
+    final selectedColor = isDark ? AppTheme.darkPrimary : AppTheme.primaryColor;
+    final unselectedColor =
+        isDark ? Colors.grey.shade500 : Colors.grey.shade500;
+
+    final color = isSelected ? selectedColor : unselectedColor;
 
     return InkWell(
       onTap: onTap,
@@ -98,7 +116,7 @@ class _NavItem extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF1a237e).withOpacity(0.1)
+              ? selectedColor.withValues(alpha: 0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),

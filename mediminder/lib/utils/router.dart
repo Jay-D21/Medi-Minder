@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../providers/ad_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../screens/main_shell.dart';
@@ -18,6 +20,7 @@ final GlobalKey<NavigatorState> _shellNavigatorKey =
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/splash',
+  observers: [AdNavigationObserver()],
   routes: [
     GoRoute(
       path: '/splash',
@@ -37,6 +40,7 @@ final router = GoRouter(
     ),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
+      observers: [AdNavigationObserver()],
       builder: (context, state, child) {
         return MainShell(child: child);
       },
@@ -76,3 +80,31 @@ final router = GoRouter(
     return null;
   },
 );
+
+class AdNavigationObserver extends NavigatorObserver {
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    _incrementAdCount(route);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    if (newRoute != null) _incrementAdCount(newRoute);
+  }
+
+  void _incrementAdCount(Route<dynamic> route) {
+    if (route is PageRoute) {
+      final context = route.navigator?.context;
+      if (context != null) {
+        try {
+          Provider.of<AdProvider>(context, listen: false)
+              .incrementNavigationCount();
+        } catch (e) {
+          debugPrint('AdObserver error: $e');
+        }
+      }
+    }
+  }
+}

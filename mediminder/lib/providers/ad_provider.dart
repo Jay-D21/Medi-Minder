@@ -11,7 +11,7 @@ class AdProvider with ChangeNotifier {
   // Interstitial Logic
   InterstitialAd? _interstitialAd;
   DateTime? _lastInterstitialTime;
-  static const Duration _interstitialInterval = Duration(minutes: 5);
+  static const Duration _interstitialInterval = Duration(minutes: 3);
 
   AdProvider() {
     _adService.init();
@@ -68,6 +68,27 @@ class AdProvider with ChangeNotifier {
     _lastInterstitialTime = now;
     _interstitialAd = null; // Cleared, relying on callback to reload
     return true;
+  }
+
+  // Navigation Logic
+  int _screenChangeCount = 0;
+  static const int _adTriggerThreshold = 5;
+
+  void incrementNavigationCount() {
+    if (_isPremium) return;
+
+    _screenChangeCount++;
+    debugPrint('Screen change count: $_screenChangeCount');
+
+    if (_screenChangeCount >= _adTriggerThreshold) {
+      // Try to show ad
+      final shown = showInterstitialIfReady();
+      if (shown) {
+        _screenChangeCount = 0;
+      }
+      // If not shown (due to time limit or not loaded), we keep the count high
+      // so it tries again on next screen change.
+    }
   }
 
   // Banner Helper

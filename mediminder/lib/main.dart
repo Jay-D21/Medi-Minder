@@ -9,12 +9,10 @@ import 'providers/auth_provider.dart';
 import 'providers/medication_provider.dart';
 import 'providers/dose_provider.dart';
 import 'providers/ad_provider.dart';
+import 'providers/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Firebase (Assuming google-services.json is set up)
-  // await Firebase.initializeApp(); // Uncomment when ready to test on device with valid config
 
   // Initialize Hive
   await Hive.initFlutter();
@@ -27,15 +25,8 @@ void main() async {
   final notificationService = NotificationService();
   await notificationService.init();
 
-  runApp(const MediMinderApp());
-}
-
-class MediMinderApp extends StatelessWidget {
-  const MediMinderApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
+  runApp(
+    MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => MedicationProvider()),
@@ -48,15 +39,29 @@ class MediMinderApp extends StatelessWidget {
           },
         ),
         ChangeNotifierProvider(create: (_) => AdProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MaterialApp.router(
-        title: 'MediMinder',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        routerConfig: router,
-      ),
+      child: const MediMinderApp(),
+    ),
+  );
+}
+
+class MediMinderApp extends StatelessWidget {
+  const MediMinderApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp.router(
+          title: 'MediMinder',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeProvider.themeMode,
+          routerConfig: router,
+        );
+      },
     );
   }
 }

@@ -35,7 +35,6 @@ class NotificationService {
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
-    // Request permissions on Android 13+
     await _requestPermissions();
   }
 
@@ -61,7 +60,7 @@ class NotificationService {
       '💊 Time for ${med.name}',
       'Take ${med.dosage} ${med.dosageUnit}',
       tz.TZDateTime.from(scheduledTime, tz.local),
-      NotificationDetails(
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
           channelName,
@@ -70,7 +69,7 @@ class NotificationService {
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
         ),
-        iOS: const DarwinNotificationDetails(
+        iOS: DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
@@ -97,7 +96,7 @@ class NotificationService {
       med.medId.hashCode + 1000,
       '⚠️ Low Supply: ${med.name}',
       'Only ${med.currentSupply} ${med.dosageUnit} remaining. Time to refill!',
-      NotificationDetails(
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
           channelName,
@@ -114,7 +113,7 @@ class NotificationService {
       0,
       '🔔 MediMinder',
       'Notifications are working!',
-      NotificationDetails(
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
           channelName,

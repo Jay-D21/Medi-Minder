@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models/medication_model.dart';
 import '../providers/medication_provider.dart';
+import '../providers/ad_provider.dart';
 
 class AddMedicationScreen extends StatefulWidget {
   const AddMedicationScreen({super.key});
@@ -98,7 +99,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}')
             .toList(),
         iconId: _selectedIconIndex,
-        color: _colors[_selectedColorIndex].value,
+        color: _colors[_selectedColorIndex].toARGB32(),
         currentSupply: int.tryParse(_supplyController.text) ?? 0,
         createdAt: DateTime.now(),
       );
@@ -113,11 +114,17 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
       );
 
       context.pop();
+
+      // Show interstitial ad after adding medication
+      Provider.of<AdProvider>(context, listen: false).showInterstitialIfReady();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Medication'),
@@ -136,6 +143,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
           children: [
             // Medication Name
             Card(
+              color: theme.cardTheme.color,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -143,9 +151,9 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                   children: [
                     Text(
                       'Medication Details',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -154,7 +162,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         labelText: 'Medication Name',
                         hintText: 'e.g., Aspirin, Vitamin D',
                         prefixIcon: Icon(Icons.medication),
-                        border: OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -174,7 +181,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                             decoration: const InputDecoration(
                               labelText: 'Dosage',
                               hintText: 'e.g., 500',
-                              border: OutlineInputBorder(),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -190,7 +196,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                             initialValue: _dosageUnit,
                             decoration: const InputDecoration(
                               labelText: 'Unit',
-                              border: OutlineInputBorder(),
                             ),
                             items: ['mg', 'ml', 'tablets', 'capsules', 'drops']
                                 .map((unit) => DropdownMenuItem(
@@ -216,6 +221,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
 
             // Schedule Section
             Card(
+              color: theme.cardTheme.color,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -223,9 +229,9 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                   children: [
                     Text(
                       'Schedule',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
@@ -233,7 +239,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Frequency',
                         prefixIcon: Icon(Icons.repeat),
-                        border: OutlineInputBorder(),
                       ),
                       items: const [
                         DropdownMenuItem(value: 'daily', child: Text('Daily')),
@@ -270,8 +275,12 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         child: ListTile(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
-                            side: BorderSide(color: Colors.grey.shade300),
+                            side: BorderSide(
+                                color: isDark
+                                    ? Colors.grey.shade700
+                                    : Colors.grey.shade300),
                           ),
+                          tileColor: isDark ? const Color(0xFF2C2C2C) : null,
                           leading: const Icon(Icons.access_time),
                           title: Text(
                             _formatTimeOfDay(time),
@@ -298,6 +307,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
 
             // Supply Section
             Card(
+              color: theme.cardTheme.color,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -305,9 +315,9 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                   children: [
                     Text(
                       'Supply Tracking',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -317,7 +327,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         labelText: 'Current Supply Count',
                         hintText: 'e.g., 30',
                         prefixIcon: Icon(Icons.inventory),
-                        border: OutlineInputBorder(),
                       ),
                     ),
                   ],
@@ -329,6 +338,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
 
             // Appearance Section
             Card(
+              color: theme.cardTheme.color,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -336,9 +346,9 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                   children: [
                     Text(
                       'Appearance',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     const Text('Color'),
@@ -361,7 +371,9 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                               boxShadow: _selectedColorIndex == entry.key
                                   ? [
                                       BoxShadow(
-                                          color: entry.value, blurRadius: 8)
+                                          color: entry.value
+                                              .withValues(alpha: 0.6),
+                                          blurRadius: 8)
                                     ]
                                   : null,
                             ),
@@ -378,6 +390,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     const SizedBox(height: 8),
                     Row(
                       children: _icons.asMap().entries.map((entry) {
+                        final isSelected = _selectedIconIndex == entry.key;
                         return GestureDetector(
                           onTap: () =>
                               setState(() => _selectedIconIndex = entry.key),
@@ -386,16 +399,20 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                             width: 48,
                             height: 48,
                             decoration: BoxDecoration(
-                              color: _selectedIconIndex == entry.key
+                              color: isSelected
                                   ? _colors[_selectedColorIndex]
-                                  : Colors.grey.shade200,
+                                  : (isDark
+                                      ? Colors.grey.shade800
+                                      : Colors.grey.shade200),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
                               entry.value,
-                              color: _selectedIconIndex == entry.key
+                              color: isSelected
                                   ? Colors.white
-                                  : Colors.grey.shade600,
+                                  : (isDark
+                                      ? Colors.grey.shade400
+                                      : Colors.grey.shade600),
                             ),
                           ),
                         );

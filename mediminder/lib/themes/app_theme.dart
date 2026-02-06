@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color(0xFF1a237e);
-  static const Color secondaryColor = Color(0xFF0d47a1);
-  static const Color accentColor = Color(0xFF00bcd4);
-  static const Color successColor = Color(0xFF4caf50);
-  static const Color warningColor = Color(0xFFff9800);
-  static const Color errorColor = Color(0xFFf44336);
+  // Brand Colors
+  static const Color primaryColor = Color(0xFF1a237e); // Deep Indigo
+  static const Color secondaryColor = Color(0xFF0d47a1); // Blue
+  static const Color accentColor = Color(0xFF00bcd4); // Cyan
+
+  // Dark Mode Colors
+  static const Color darkBackground = Color(0xFF121212);
+  static const Color darkSurface = Color(0xFF1E1E1E);
+  static const Color darkPrimary =
+      Color(0xFF5C6BC0); // Lighter indigo for dark mode
 
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.light,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.light,
@@ -24,16 +29,17 @@ class AppTheme {
         elevation: 0,
         centerTitle: false,
         titleTextStyle: TextStyle(
-          color: Color(0xFF1a237e),
+          color: primaryColor,
           fontSize: 24,
           fontWeight: FontWeight.bold,
         ),
-        iconTheme: IconThemeData(color: Color(0xFF1a237e)),
+        iconTheme: IconThemeData(color: primaryColor),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         color: Colors.white,
+        margin: EdgeInsets.zero,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -78,27 +84,21 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 4,
       ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
-        selectedItemColor: primaryColor,
-        unselectedItemColor: Colors.grey.shade400,
-        type: BottomNavigationBarType.fixed,
-        elevation: 8,
-      ),
     );
   }
 
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.dark,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.dark,
-        primary: const Color(0xFF90caf9),
+        primary: darkPrimary,
         secondary: const Color(0xFF64b5f6),
-        surface: const Color(0xFF1e1e1e),
+        surface: darkSurface,
       ),
-      scaffoldBackgroundColor: const Color(0xFF121212),
+      scaffoldBackgroundColor: darkBackground,
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -108,16 +108,18 @@ class AppTheme {
           fontSize: 24,
           fontWeight: FontWeight.bold,
         ),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: const Color(0xFF1e1e1e),
+        color: darkSurface,
+        margin: EdgeInsets.zero,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF90caf9),
-          foregroundColor: Colors.black,
+          backgroundColor: darkPrimary,
+          foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape:
@@ -126,15 +128,15 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF2d2d2d),
+        fillColor: const Color(0xFF2C2C2C),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Color(0xFF90caf9),
-        foregroundColor: Colors.black,
+        backgroundColor: darkPrimary,
+        foregroundColor: Colors.white,
       ),
     );
   }

@@ -31,7 +31,13 @@ android {
 
     buildTypes {
         release {
+            // Use debug signing for now - user must replace with production keystore
             signingConfig = signingConfigs.getByName("debug")
+            
+            // Disable minification for now to avoid Flutter compatibility issues
+            // User can enable after testing
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }

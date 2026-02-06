@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../providers/ad_provider.dart';
 import '../providers/medication_provider.dart';
-import '../providers/dose_provider.dart';
 import '../services/local_storage_service.dart';
+import '../models/dose_log_model.dart';
+import '../themes/app_theme.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -17,323 +19,232 @@ class _HistoryScreenState extends State<HistoryScreen> {
   final LocalStorageService _storage = LocalStorageService();
   int _takenCount = 0;
   int _skippedCount = 0;
-  int _totalDoses = 0;
+  int _streak = 0;
+  List<DoseLogModel> _recentLogs = [];
+  BannerAd? _bannerAd;
+  bool _isAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<AdProvider>(context, listen: false).showInterstitialIfReady();
       _loadStats();
+      _loadBannerAd();
     });
+  }
+
+  void _loadBannerAd() {
+    final adProvider = Provider.of<AdProvider>(context, listen: false);
+    if (!adProvider.isPremium) {
+      _bannerAd = adProvider.createBanner(() {
+        if (mounted) setState(() => _isAdLoaded = true);
+      });
+      _bannerAd?.load();
+    }
   }
 
   void _loadStats() {
     final logs = _storage.getDoseLogs();
-    setState(() {
-      _takenCount = logs.where((l) => l.status == 'taken').length;
-      _skippedCount = logs.where((l) => l.status == 'skipped').length;
-      _totalDoses = logs.length;
-    });
-  }
+    final taken = logs.where((l) => l.status == 'taken').toList();
+    final skipped = logs.where((l) => l.status == 'skipped').toList();
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Analytics & History',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-      ),
-      body: Consumer2<MedicationProvider, DoseProvider>(
-        builder: (context, medProvider, doseProvider, child) {
-          final adherenceRate =
-              _totalDoses > 0 ? ((_takenCount / _totalDoses) * 100).round() : 0;
-
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              // Analytics Cards
-              Text('Adherence Analytics',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
-
-              // Main Stats Card
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF1a237e), Color(0xFF3949ab)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                        color: const Color(0xFF1a237e).withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6))
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.analytics, color: Colors.white),
-                        const SizedBox(width: 8),
-                        const Text('Overall Adherence',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Column(
-                          children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 100,
-                                  height: 100,
-                                  child: CircularProgressIndicator(
-                                    value: _totalDoses > 0
-                                        ? _takenCount / _totalDoses
-                                        : 0,
-                                    strokeWidth: 10,
-                                    backgroundColor: Colors.white24,
-                                    valueColor:
-                                        const AlwaysStoppedAnimation<Color>(
-                                            Colors.white),
-                                  ),
-                                ),
-                                Column(
-                                  children: [
-                                    Text('$adherenceRate%',
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.bold)),
-                                    const Text('rate',
-                                        style: TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 12)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _StatRow(
-                                icon: Icons.check_circle,
-                                label: 'Taken',
-                                value: _takenCount.toString(),
-                                color: Colors.green),
-                            const SizedBox(height: 8),
-                            _StatRow(
-                                icon: Icons.cancel,
-                                label: 'Skipped',
-                                value: _skippedCount.toString(),
-                                color: Colors.orange),
-                            const SizedBox(height: 8),
-                            _StatRow(
-                                icon: Icons.medication,
-                                label: 'Active Meds',
-                                value:
-                                    medProvider.medications.length.toString(),
-                                color: Colors.white),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Quick Stats Row
-              Row(
-                children: [
-                  Expanded(
-                      child: _QuickStatCard(
-                          title: 'Today',
-                          value:
-                              '${doseProvider.todayDoses.where((d) => d.status == 'taken').length}/${doseProvider.todayDoses.length}',
-                          icon: Icons.today,
-                          color: Colors.blue)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                      child: _QuickStatCard(
-                          title: 'Streak',
-                          value: '${_calculateStreak()} days',
-                          icon: Icons.local_fire_department,
-                          color: Colors.orange)),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // Recent Activity
-              Text('Recent Activity',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
-
-              if (_totalDoses == 0)
-                Container(
-                  padding: const EdgeInsets.all(32),
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(16)),
-                  child: Column(
-                    children: [
-                      Icon(Icons.history,
-                          size: 48, color: Colors.grey.shade400),
-                      const SizedBox(height: 12),
-                      Text('No history yet',
-                          style: TextStyle(color: Colors.grey.shade600)),
-                      Text('Start taking medications to build your history',
-                          style: TextStyle(
-                              color: Colors.grey.shade500, fontSize: 12)),
-                    ],
-                  ),
-                )
-              else
-                ..._buildRecentLogs(),
-
-              const SizedBox(height: 24),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  int _calculateStreak() {
-    final logs = _storage.getDoseLogs();
-    if (logs.isEmpty) return 0;
-
-    // Simple streak: count consecutive days with at least one taken dose
-    final takenLogs = logs.where((l) => l.status == 'taken').toList();
-    if (takenLogs.isEmpty) return 0;
-
-    takenLogs.sort((a, b) => b.actionTime!.compareTo(a.actionTime!));
-
+    // Calculate streak
     int streak = 0;
-    DateTime? lastDate;
-
-    for (final log in takenLogs) {
-      final logDate = DateTime(
-          log.actionTime!.year, log.actionTime!.month, log.actionTime!.day);
-
-      if (lastDate == null) {
-        streak = 1;
-        lastDate = logDate;
-      } else {
-        final diff = lastDate.difference(logDate).inDays;
-        if (diff == 1) {
+    if (taken.isNotEmpty) {
+      taken.sort((a, b) => b.scheduledTime.compareTo(a.scheduledTime));
+      DateTime? lastDate;
+      for (var log in taken) {
+        final logDate = DateTime(log.scheduledTime.year,
+            log.scheduledTime.month, log.scheduledTime.day);
+        if (lastDate == null) {
+          streak = 1;
+          lastDate = logDate;
+        } else if (lastDate.difference(logDate).inDays == 1) {
           streak++;
           lastDate = logDate;
-        } else if (diff > 1) {
+        } else {
           break;
         }
       }
     }
 
-    return streak;
+    setState(() {
+      _takenCount = taken.length;
+      _skippedCount = skipped.length;
+      _streak = streak;
+      _recentLogs = logs.take(10).toList();
+    });
   }
 
-  List<Widget> _buildRecentLogs() {
-    final logs = _storage.getDoseLogs();
-    logs.sort((a, b) => (b.actionTime ?? b.scheduledTime)
-        .compareTo(a.actionTime ?? a.scheduledTime));
-
-    final recentLogs = logs.take(10).toList();
-    final dateFormat = DateFormat('MMM d, h:mm a');
-
-    return recentLogs.map((log) {
-      final meds =
-          Provider.of<MedicationProvider>(context, listen: false).medications;
-      final med = meds.firstWhere((m) => m.medId == log.medId,
-          orElse: () =>
-              meds.isNotEmpty ? meds.first : throw Exception('No meds'));
-
-      return Card(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: log.status == 'taken'
-                ? Colors.green.shade100
-                : Colors.grey.shade200,
-            child: Icon(
-              log.status == 'taken' ? Icons.check : Icons.close,
-              color: log.status == 'taken' ? Colors.green : Colors.grey,
-            ),
-          ),
-          title: Text(med.name,
-              style: const TextStyle(fontWeight: FontWeight.w500)),
-          subtitle:
-              Text(dateFormat.format(log.actionTime ?? log.scheduledTime)),
-          trailing: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: log.status == 'taken'
-                  ? Colors.green.shade100
-                  : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              log.status == 'taken' ? 'Taken ✓' : 'Skipped',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: log.status == 'taken'
-                    ? Colors.green.shade700
-                    : Colors.grey.shade600,
-              ),
-            ),
-          ),
-        ),
-      );
-    }).toList();
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
-}
-
-class _StatRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  const _StatRow(
-      {required this.icon,
-      required this.label,
-      required this.value,
-      required this.color});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final total = _takenCount + _skippedCount;
+    final adherence = total > 0 ? ((_takenCount / total) * 100).round() : 0;
+
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text('Analytics',
+              style: TextStyle(fontWeight: FontWeight.bold))),
+      body: Column(
+        children: [
+          Expanded(
+            child: Consumer<MedicationProvider>(
+              builder: (context, medProvider, child) {
+                return ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    // Main Stats Card
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(colors: [
+                          AppTheme.primaryColor,
+                          AppTheme.secondaryColor
+                        ]),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _StatItem(
+                                  value: '$adherence%',
+                                  label: 'Adherence',
+                                  icon: Icons.analytics),
+                              _StatItem(
+                                  value: '$_streak',
+                                  label: 'Day Streak',
+                                  icon: Icons.local_fire_department),
+                              _StatItem(
+                                  value: '${medProvider.medications.length}',
+                                  label: 'Active Meds',
+                                  icon: Icons.medication),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Dose Stats
+                    Row(
+                      children: [
+                        Expanded(
+                            child: _InfoCard(
+                                title: 'Taken',
+                                value: '$_takenCount',
+                                color: Colors.green,
+                                icon: Icons.check_circle,
+                                isDark: isDark)),
+                        const SizedBox(width: 12),
+                        Expanded(
+                            child: _InfoCard(
+                                title: 'Skipped',
+                                value: '$_skippedCount',
+                                color: Colors.orange,
+                                icon: Icons.cancel,
+                                isDark: isDark)),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Recent Activity
+                    Text('Recent Activity',
+                        style: theme.textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+
+                    if (_recentLogs.isEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(32),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(Icons.history,
+                                size: 48,
+                                color: isDark
+                                    ? Colors.grey.shade600
+                                    : Colors.grey.shade400),
+                            const SizedBox(height: 8),
+                            Text('No activity yet',
+                                style: TextStyle(
+                                    color: isDark
+                                        ? Colors.grey.shade500
+                                        : Colors.grey.shade600)),
+                          ],
+                        ),
+                      )
+                    else
+                      ...List.generate(_recentLogs.length, (i) {
+                        final log = _recentLogs[i];
+                        final med = medProvider.medications
+                            .where((m) => m.medId == log.medId)
+                            .firstOrNull;
+                        return _ActivityItem(
+                            log: log,
+                            medName: med?.name ?? 'Unknown',
+                            isDark: isDark);
+                      }),
+                  ],
+                );
+              },
+            ),
+          ),
+
+          // Banner Ad
+          if (_isAdLoaded && _bannerAd != null)
+            SafeArea(
+              child: Container(
+                width: double.infinity,
+                height: _bannerAd!.size.height.toDouble(),
+                color: theme.scaffoldBackgroundColor,
+                child: AdWidget(ad: _bannerAd!),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final String value, label;
+  final IconData icon;
+  const _StatItem(
+      {required this.value, required this.label, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
       children: [
-        Icon(icon, color: color, size: 20),
-        const SizedBox(width: 8),
-        Text('$value ',
-            style: TextStyle(
+        Icon(icon, color: Colors.white70, size: 20),
+        const SizedBox(height: 4),
+        Text(value,
+            style: const TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18)),
+                fontSize: 24,
+                fontWeight: FontWeight.bold)),
         Text(label,
             style: const TextStyle(color: Colors.white70, fontSize: 12)),
       ],
@@ -341,38 +252,88 @@ class _StatRow extends StatelessWidget {
   }
 }
 
-class _QuickStatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
+class _InfoCard extends StatelessWidget {
+  final String title, value;
   final Color color;
-
-  const _QuickStatCard(
+  final IconData icon;
+  final bool isDark;
+  const _InfoCard(
       {required this.title,
       required this.value,
+      required this.color,
       required this.icon,
-      required this.color});
+      required this.isDark});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Icon(icon, color: color),
-          const SizedBox(height: 8),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold, color: color)),
-          Text(title,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+          Icon(icon, color: color, size: 28),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(value,
+                  style: TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+              Text(title,
+                  style: TextStyle(
+                      color:
+                          isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                      fontSize: 12)),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActivityItem extends StatelessWidget {
+  final DoseLogModel log;
+  final String medName;
+  final bool isDark;
+  const _ActivityItem(
+      {required this.log, required this.medName, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    final isTaken = log.status == 'taken';
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      color: Theme.of(context).cardTheme.color,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: isTaken
+              ? Colors.green.withValues(alpha: 0.2)
+              : Colors.orange.withValues(alpha: 0.2),
+          child: Icon(isTaken ? Icons.check : Icons.close,
+              color: isTaken ? Colors.green : Colors.orange, size: 20),
+        ),
+        title:
+            Text(medName, style: const TextStyle(fontWeight: FontWeight.w500)),
+        subtitle: Text(
+          DateFormat('MMM d, h:mm a').format(log.scheduledTime),
+          style: TextStyle(
+              color: isDark ? Colors.grey.shade500 : Colors.grey.shade600),
+        ),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: isTaken ? Colors.green : Colors.orange,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(isTaken ? 'Taken' : 'Skipped',
+              style: const TextStyle(color: Colors.white, fontSize: 11)),
+        ),
       ),
     );
   }

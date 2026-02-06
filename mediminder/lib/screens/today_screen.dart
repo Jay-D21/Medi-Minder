@@ -8,6 +8,7 @@ import '../providers/medication_provider.dart';
 import '../providers/dose_provider.dart';
 import '../models/medication_model.dart';
 import '../models/dose_log_model.dart';
+import '../themes/app_theme.dart';
 
 class TodayScreen extends StatefulWidget {
   const TodayScreen({super.key});
@@ -21,14 +22,16 @@ class _TodayScreenState extends State<TodayScreen> {
   bool _isAdLoaded = false;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadBannerAd();
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadBannerAd();
+    });
   }
 
   void _loadBannerAd() {
-    final adProvider = Provider.of<AdProvider>(context);
-    if (!adProvider.isPremium && _bannerAd == null) {
+    final adProvider = Provider.of<AdProvider>(context, listen: false);
+    if (!adProvider.isPremium) {
       _bannerAd = adProvider.createBanner(() {
         if (mounted) setState(() => _isAdLoaded = true);
       });
@@ -44,71 +47,96 @@ class _TodayScreenState extends State<TodayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Today'),
-            Text(DateFormat('EEEE, MMM d').format(now),
-                style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w400)),
-          ],
-        ),
-        toolbarHeight: 65,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/add-med'),
-        child: const Icon(Icons.add),
-      ),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
+          // Header with Logo
+          Container(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 16,
+              left: 20,
+              right: 20,
+              bottom: 16,
+            ),
+            color:
+                theme.appBarTheme.backgroundColor ?? theme.colorScheme.surface,
+            child: Row(
+              children: [
+                // App Logo - Pill bottle icon
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Image.asset('Logo/Medi Minder Logo.png',
+                      width: 26, height: 26),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'MediMinder',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : AppTheme.primaryColor,
+                        ),
+                      ),
+                      Text(
+                        DateFormat('EEEE, MMM d').format(DateTime.now()),
+                        style: TextStyle(
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : Colors.grey.shade600,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Content
           Expanded(
             child: Consumer2<MedicationProvider, DoseProvider>(
               builder: (context, medProvider, doseProvider, child) {
                 if (medProvider.medications.isEmpty) {
-                  return _EmptyState(onAdd: () => context.push('/add-med'));
+                  return _buildEmptyState(theme, isDark);
                 }
 
                 final doses = doseProvider.todayDoses;
                 final taken = doses.where((d) => d.status == 'taken').length;
-                final total = doses.length;
 
                 return ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
-                    // Progress Card
-                    _ProgressCard(
-                        taken: taken,
-                        total: total,
-                        lowSupply: medProvider.medications
-                            .where(
-                                (m) => m.currentSupply <= m.lowSupplyThreshold)
-                            .length),
-                    const SizedBox(height: 20),
-
-                    // Schedule
-                    Text("Schedule",
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600)),
+                    _buildProgressCard(
+                        taken, doses.length, medProvider.medications, theme),
+                    const SizedBox(height: 24),
+                    _buildSectionHeader("Today's Schedule", theme),
                     const SizedBox(height: 12),
-
                     if (doses.isEmpty)
-                      const _NoScheduleCard()
+                      _buildAllDoneCard(theme)
                     else
-                      ...doses.map((dose) => _DoseItem(
+                      ...doses.map((dose) => _DoseCard(
                             dose: dose,
                             medication: medProvider.medications.firstWhere(
                               (m) => m.medId == dose.medId,
                               orElse: () => _defaultMed(),
                             ),
+                            isDark: isDark,
                           )),
+                    const SizedBox(height: 80),
                   ],
                 );
               },
@@ -117,13 +145,182 @@ class _TodayScreenState extends State<TodayScreen> {
 
           // Banner Ad
           if (_isAdLoaded && _bannerAd != null)
-            SafeArea(
-              child: SizedBox(
-                height: _bannerAd!.size.height.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
-              ),
+            Container(
+              width: double.infinity,
+              height: _bannerAd!.size.height.toDouble(),
+              color: theme.scaffoldBackgroundColor,
+              child: AdWidget(ad: _bannerAd!),
             ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/add-med'),
+        backgroundColor: AppTheme.primaryColor,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, ThemeData theme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title,
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.w600)),
+        TextButton(
+          onPressed: () => context.push('/add-med'),
+          child: const Text('+ Add'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProgressCard(
+      int taken, int total, List<MedicationModel> meds, ThemeData theme) {
+    final percent = total > 0 ? (taken / total * 100).round() : 100;
+    final lowSupply =
+        meds.where((m) => m.currentSupply <= m.lowSupplyThreshold).length;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+            colors: [AppTheme.primaryColor, AppTheme.secondaryColor]),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryColor.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 70,
+                height: 70,
+                child: CircularProgressIndicator(
+                  value: total > 0 ? taken / total : 1,
+                  strokeWidth: 8,
+                  backgroundColor: Colors.white24,
+                  valueColor: const AlwaysStoppedAnimation(Colors.white),
+                ),
+              ),
+              Text('$percent%',
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16)),
+            ],
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('$taken of $total doses taken',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500)),
+                const SizedBox(height: 4),
+                Text('${meds.length} active medications',
+                    style:
+                        const TextStyle(color: Colors.white70, fontSize: 13)),
+                if (lowSupply > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(6)),
+                      child: Text('⚠️ $lowSupply low supply',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 11)),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAllDoneCard(ThemeData theme) {
+    bool isDark = theme.brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: theme.cardTheme.color,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: isDark
+                ? Colors.green.withValues(alpha: 0.3)
+                : Colors.green.shade200),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.check_circle,
+              size: 48,
+              color: isDark ? Colors.greenAccent : Colors.green.shade400),
+          const SizedBox(height: 8),
+          Text('All done for today!',
+              style: TextStyle(
+                  color: isDark ? Colors.greenAccent : Colors.green,
+                  fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(ThemeData theme, bool isDark) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Image.asset('Logo/Medi Minder Logo.png',
+                  width: 40, height: 40),
+            ),
+            const SizedBox(height: 24),
+            Text('No medications yet',
+                style: theme.textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text(
+              'Add your first medication to start tracking',
+              style: TextStyle(
+                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => context.push('/add-med'),
+              icon: const Icon(Icons.add),
+              label: const Text('Add Medication'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -137,131 +334,141 @@ class _TodayScreenState extends State<TodayScreen> {
         frequencyType: '',
         scheduleTimes: [],
         iconId: 0,
-        color: 0xFF1a237e,
+        color: AppTheme.primaryColor.value,
         createdAt: DateTime.now(),
       );
 }
 
-class _ProgressCard extends StatelessWidget {
-  final int taken, total, lowSupply;
-  const _ProgressCard(
-      {required this.taken, required this.total, required this.lowSupply});
-
-  @override
-  Widget build(BuildContext context) {
-    final percent = total > 0 ? (taken / total * 100).round() : 0;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-            colors: [Color(0xFF1a237e), Color(0xFF3949ab)]),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 60,
-                height: 60,
-                child: CircularProgressIndicator(
-                  value: total > 0 ? taken / total : 0,
-                  strokeWidth: 6,
-                  backgroundColor: Colors.white24,
-                  valueColor: const AlwaysStoppedAnimation(Colors.white),
-                ),
-              ),
-              Text('$percent%',
-                  style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('$taken of $total doses taken',
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500)),
-                if (lowSupply > 0)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text('⚠️ $lowSupply low supply',
-                        style: const TextStyle(
-                            color: Colors.yellow, fontSize: 12)),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DoseItem extends StatelessWidget {
+class _DoseCard extends StatelessWidget {
   final DoseLogModel dose;
   final MedicationModel medication;
-  const _DoseItem({required this.dose, required this.medication});
-
-  static const _icons = [
-    Icons.medication,
-    Icons.medical_services,
-    Icons.healing,
-    Icons.favorite,
-    Icons.local_pharmacy,
-    Icons.vaccines
-  ];
+  final bool isDark;
+  const _DoseCard(
+      {required this.dose, required this.medication, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
     final isTaken = dose.status == 'taken';
-    final icon = medication.iconId < _icons.length
-        ? _icons[medication.iconId]
-        : Icons.medication;
+    final isSkipped = dose.status == 'skipped';
+    final theme = Theme.of(context);
+
+    final medColor = Color(medication.color);
+
+    // Icons mapping
+    final List<IconData> icons = [
+      Icons.medication,
+      Icons.medical_services,
+      Icons.healing,
+      Icons.favorite,
+      Icons.local_pharmacy,
+      Icons.vaccines,
+    ];
+    final iconData =
+        (medication.iconId >= 0 && medication.iconId < icons.length)
+            ? icons[medication.iconId]
+            : icons[0];
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      color: isTaken ? Colors.green.shade50 : null,
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor:
-              isTaken ? Colors.green : medication.colorObj.withAlpha(50),
-          child: Icon(isTaken ? Icons.check : icon,
-              color: isTaken ? Colors.white : medication.colorObj),
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      color: theme.cardTheme.color,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isTaken
+              ? (isDark
+                  ? Colors.green.withValues(alpha: 0.3)
+                  : Colors.green.shade200)
+              : (isDark ? Colors.white10 : Colors.grey.shade200),
         ),
-        title: Text(medication.name,
-            style: TextStyle(
-                fontWeight: FontWeight.w500,
-                decoration: dose.status == 'skipped'
-                    ? TextDecoration.lineThrough
-                    : null)),
-        subtitle: Text(
-            '${medication.dosage} ${medication.dosageUnit} • ${_formatTime(dose.scheduledTime)}'),
-        trailing: isTaken
-            ? const Chip(
-                label: Text('Done', style: TextStyle(fontSize: 12)),
-                backgroundColor: Colors.green,
-                labelStyle: TextStyle(color: Colors.white))
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.grey),
-                    onPressed: () => _skip(context),
+      ),
+      child: InkWell(
+        onTap: () {
+          if (isTaken) {
+            _undo(context);
+          } else {
+            _take(context);
+          }
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Habit Checkbox
+              Transform.scale(
+                scale: 1.2,
+                child: Checkbox(
+                  value: isTaken,
+                  onChanged: (val) {
+                    if (val == true) {
+                      _take(context);
+                    } else {
+                      _undo(context);
+                    }
+                  },
+                  shape: const CircleBorder(),
+                  activeColor: AppTheme.primaryColor,
+                  checkColor: Colors.white,
+                  side: BorderSide(
+                    color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+                    width: 2,
                   ),
-                  IconButton(
-                    icon: Icon(Icons.check_circle,
-                        color: medication.colorObj, size: 28),
-                    onPressed: () => _take(context),
-                  ),
-                ],
+                ),
               ),
+              const SizedBox(width: 12),
+
+              // Icon Container
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: medColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  iconData,
+                  color: medColor,
+                  size: 24,
+                ),
+              ),
+
+              const SizedBox(width: 16),
+
+              // Text Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      medication.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        decoration: isTaken || isSkipped
+                            ? TextDecoration.lineThrough
+                            : null,
+                        color: (isTaken || isSkipped)
+                            ? theme.disabledColor
+                            : theme.textTheme.bodyLarge?.color,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${medication.dosage} ${medication.dosageUnit} • ${_formatTime(dose.scheduledTime)}',
+                      style: TextStyle(
+                        color: isDark
+                            ? Colors.grey.shade500
+                            : Colors.grey.shade600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -271,80 +478,23 @@ class _DoseItem extends StatelessWidget {
         .markAsTaken(dose.medId, dose.scheduledTime);
     Provider.of<MedicationProvider>(context, listen: false)
         .decrementSupply(dose.medId);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('${medication.name} taken ✓'),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 2)));
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text('${medication.name} taken'),
+          duration: const Duration(seconds: 1),
+          backgroundColor: Colors.green),
+    );
   }
 
-  void _skip(BuildContext context) {
+  void _undo(BuildContext context) {
     Provider.of<DoseProvider>(context, listen: false)
-        .markAsSkipped(dose.medId, dose.scheduledTime);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('${medication.name} skipped'),
-        duration: const Duration(seconds: 2)));
+        .undoDose(dose.medId, dose.scheduledTime);
   }
 
-  String _formatTime(DateTime t) =>
-      '${t.hour > 12 ? t.hour - 12 : (t.hour == 0 ? 12 : t.hour)}:${t.minute.toString().padLeft(2, '0')} ${t.hour >= 12 ? 'PM' : 'AM'}';
-}
-
-class _NoScheduleCard extends StatelessWidget {
-  const _NoScheduleCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-          color: Colors.grey.shade100, borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        children: [
-          Icon(Icons.event_available, size: 40, color: Colors.grey.shade400),
-          const SizedBox(height: 8),
-          Text('No doses scheduled',
-              style: TextStyle(color: Colors.grey.shade600)),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  final VoidCallback onAdd;
-  const _EmptyState({required this.onAdd});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                  color: const Color(0xFF1a237e).withAlpha(25),
-                  shape: BoxShape.circle),
-              child: const Icon(Icons.medication_rounded,
-                  size: 48, color: Color(0xFF1a237e)),
-            ),
-            const SizedBox(height: 24),
-            const Text('No medications yet',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Text('Add your first medication to get started',
-                style: TextStyle(color: Colors.grey.shade600)),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-                onPressed: onAdd,
-                icon: const Icon(Icons.add),
-                label: const Text('Add Medication')),
-          ],
-        ),
-      ),
-    );
+  String _formatTime(DateTime t) {
+    final h = t.hour > 12 ? t.hour - 12 : (t.hour == 0 ? 12 : t.hour);
+    return '$h:${t.minute.toString().padLeft(2, '0')} ${t.hour >= 12 ? 'PM' : 'AM'}';
   }
 }
