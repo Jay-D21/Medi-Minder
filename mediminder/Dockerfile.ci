@@ -1,0 +1,53 @@
+# Start with Ubuntu base
+FROM ubuntu:22.04
+
+# Avoid warnings by switching to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    unzip \
+    xz-utils \
+    zip \
+    libglu1-mesa \
+    openjdk-17-jdk \
+    wget \
+    clang \
+    cmake \
+    ninja-build \
+    pkg-config \
+    libgtk-3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up environment variables
+ENV JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+ENV ANDROID_SDK_ROOT="/opt/android-sdk"
+ENV ANDROID_HOME="/opt/android-sdk"
+ENV PATH="$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools"
+ENV FLUTTER_HOME="/opt/flutter"
+ENV PATH="$PATH:$FLUTTER_HOME/bin"
+
+# Install Android SDK
+RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O android-cli.zip && \
+    unzip -q android-cli.zip -d $ANDROID_SDK_ROOT/cmdline-tools && \
+    mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest && \
+    rm android-cli.zip
+
+# Accept Android licenses
+RUN yes | sdkmanager --licenses
+
+# Install Android platforms and build tools
+RUN sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+# Install Flutter SDK
+RUN git clone https://github.com/flutter/flutter.git -b stable $FLUTTER_HOME
+
+# Disable analytics and precache artifacts
+RUN flutter config --no-analytics && \
+    flutter precache
+
+# Set the working directory
+WORKDIR /app

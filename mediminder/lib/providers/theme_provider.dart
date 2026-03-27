@@ -19,10 +19,11 @@ class ThemeProvider extends ChangeNotifier {
     if (savedTheme != null) {
       if (savedTheme == 'light') {
         _themeMode = ThemeMode.light;
-      } else if (savedTheme == 'dark')
+      } else if (savedTheme == 'dark') {
         _themeMode = ThemeMode.dark;
-      else
+      } else {
         _themeMode = ThemeMode.system;
+      }
     }
     notifyListeners();
   }
@@ -35,7 +36,9 @@ class ThemeProvider extends ChangeNotifier {
     String value = 'system';
     if (mode == ThemeMode.light) {
       value = 'light';
-    } else if (mode == ThemeMode.dark) value = 'dark';
+    } else if (mode == ThemeMode.dark) {
+      value = 'dark';
+    }
 
     await box.put(_keyTheme, value);
   }

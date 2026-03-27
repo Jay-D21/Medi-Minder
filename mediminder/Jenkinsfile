@@ -1,0 +1,56 @@
+pipeline {
+    // This uses the K8s pod template to spin up a build agent on your cluster.
+    // If you haven't published the Dockerfile.ci image yet, you might need to build that manually
+    // and push it to a registry first (e.g. your-registry/flutter-ci:latest).
+    agent {
+        kubernetes {
+            yamlFile 'mediminder/k8s-pod-template.yaml'
+        }
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Dependencies') {
+            steps {
+                container('flutter') {
+                    dir('mediminder') {
+                        sh 'flutter clean'
+                        sh 'flutter pub get'
+                    }
+                }
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                container('flutter') {
+                    dir('mediminder') {
+                        sh 'flutter test'
+                    }
+                }
+            }
+        }
+        
+        stage('Build APK') {
+            steps {
+                container('flutter') {
+                    dir('mediminder') {
+                        // Builds the fat APK for all ABI architectures
+                        sh 'flutter build apk --release'
+                    }
+                }
+            }
+            post {
+                success {
+                    // Archive the built APK so it can be downloaded from Jenkins
+                    archiveArtifacts artifacts: 'mediminder/build/app/outputs/flutter-apk/app-release.apk', fingerprint: true
+                }
+            }
+        }
+    }
+}

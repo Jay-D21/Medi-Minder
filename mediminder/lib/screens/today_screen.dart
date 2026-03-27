@@ -334,7 +334,7 @@ class _TodayScreenState extends State<TodayScreen> {
         frequencyType: '',
         scheduleTimes: [],
         iconId: 0,
-        color: AppTheme.primaryColor.value,
+        color: AppTheme.primaryColor.toARGB32(),
         createdAt: DateTime.now(),
       );
 }

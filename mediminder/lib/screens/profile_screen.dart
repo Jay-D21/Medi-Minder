@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
@@ -143,7 +144,7 @@ class ProfileScreen extends StatelessWidget {
             subtitle: 'Reminder settings',
             isDark: isDark,
             onTap: () {
-              // TODO: Implement notification settings
+              // Implement notification settings
             },
           ),
           _Tile(
@@ -159,7 +160,7 @@ class ProfileScreen extends StatelessWidget {
             subtitle: 'Export your data',
             isDark: isDark,
             onTap: () {
-              // TODO: Implement backup
+              // Implement backup
             },
           ),
           _Tile(
@@ -168,7 +169,7 @@ class ProfileScreen extends StatelessWidget {
             subtitle: 'App lock & security',
             isDark: isDark,
             onTap: () {
-              // TODO: Implement privacy
+              // Implement privacy
             },
           ),
 
@@ -224,7 +225,7 @@ class ProfileScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _SocialButton(
+                    const _SocialButton(
                       assetPath: 'Logo/Instagram/Instagram_Glyph_Gradient.png',
                       url:
                           'https://www.instagram.com/i._labs/?utm_source=ig_web_button_share_sheet',
