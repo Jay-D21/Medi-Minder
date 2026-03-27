@@ -15,7 +15,7 @@ pipeline {
                 // This avoids the Jenkins Docker Plugin trying to use Windows paths inside a Linux container.
                 dir('mediminder') {
                     bat '''
-                    docker run --rm -v "%CD%:/app" -w /app mediminder:latest bash -c "flutter clean && flutter pub get && flutter test"
+                    docker run --rm -u root -v "%CD%:/app" -w /app mediminder:latest bash -c "flutter clean && flutter pub get && flutter test"
                     '''
                 }
             }
@@ -25,7 +25,7 @@ pipeline {
             steps {
                 dir('mediminder') {
                     bat '''
-                    docker run --rm -v "%CD%:/app" -w /app mediminder:latest bash -c "flutter build apk --release"
+                    docker run --rm -u root -v "%CD%:/app" -w /app mediminder:latest bash -c "flutter build apk --release"
                     '''
                 }
             }
