@@ -11,11 +11,14 @@ pipeline {
 
         stage('Dependencies & Test') {
             steps {
-                // We use native Windows batch commands to invoke Docker manually.
-                // This avoids the Jenkins Docker Plugin trying to use Windows paths inside a Linux container.
                 dir('mediminder') {
+                    // Instead of volume mounting (which causes permission issues on Windows),
+                    // we copy the code INTO the container, run the commands, then copy artifacts out.
                     bat '''
-                    docker run --rm -u root -v "%CD%:/app" -w /app mediminder:latest bash -c "flutter clean && flutter pub get && flutter test"
+                    docker create --name mediminder-build -w /app mediminder:latest bash -c "flutter clean && flutter pub get && flutter test"
+                    docker cp . mediminder-build:/app
+                    docker start -a mediminder-build
+                    docker rm mediminder-build
                     '''
                 }
             }
@@ -25,14 +28,17 @@ pipeline {
             steps {
                 dir('mediminder') {
                     bat '''
-                    docker run --rm -u root -v "%CD%:/app" -w /app mediminder:latest bash -c "flutter build apk --release"
+                    docker create --name mediminder-apk -w /app mediminder:latest bash -c "flutter build apk --release"
+                    docker cp . mediminder-apk:/app
+                    docker start -a mediminder-apk
+                    docker cp mediminder-apk:/app/build/app/outputs/flutter-apk/app-release.apk app-release.apk
+                    docker rm mediminder-apk
                     '''
                 }
             }
             post {
                 success {
-                    // Archive the built APK so it can be downloaded from Jenkins
-                    archiveArtifacts artifacts: 'mediminder/build/app/outputs/flutter-apk/app-release.apk', fingerprint: true
+                    archiveArtifacts artifacts: 'mediminder/app-release.apk', fingerprint: true
                 }
             }
         }
