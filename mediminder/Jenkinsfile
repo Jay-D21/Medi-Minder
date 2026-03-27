@@ -28,7 +28,7 @@ pipeline {
             steps {
                 dir('mediminder') {
                     bat '''
-                    docker create --name mediminder-apk -w /app mediminder:latest bash -c "flutter build apk --release"
+                    docker create --name mediminder-apk -w /app mediminder:latest bash -c "export GRADLE_OPTS='-Dorg.gradle.jvmargs=-Xmx1536m' && flutter build apk --release --no-daemon"
                     docker cp . mediminder-apk:/app
                     docker start -a mediminder-apk
                     docker cp mediminder-apk:/app/build/app/outputs/flutter-apk/app-release.apk app-release.apk
