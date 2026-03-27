@@ -1,13 +1,6 @@
 pipeline {
-    // Uses the Docker Pipeline plugin to spin up our build agent
-    agent {
-        docker { 
-            image 'mediminder:latest'
-            // Run as root to ensure we can write to the Jenkins workspace volume
-            args '-u root'
-            // If the process fails to find docker, ensure Docker Desktop is running and integrated
-        }
-    }
+    // Run on the Windows Jenkins master node directly
+    agent any
     
     stages {
         stage('Checkout') {
@@ -18,10 +11,12 @@ pipeline {
 
         stage('Dependencies & Test') {
             steps {
+                // We use native Windows batch commands to invoke Docker manually.
+                // This avoids the Jenkins Docker Plugin trying to use Windows paths inside a Linux container.
                 dir('mediminder') {
-                    sh 'flutter clean'
-                    sh 'flutter pub get'
-                    sh 'flutter test'
+                    bat '''
+                    docker run --rm -v "%CD%:/app" -w /app mediminder:latest bash -c "flutter clean && flutter pub get && flutter test"
+                    '''
                 }
             }
         }
@@ -29,11 +24,14 @@ pipeline {
         stage('Build APK') {
             steps {
                 dir('mediminder') {
-                    sh 'flutter build apk --release'
+                    bat '''
+                    docker run --rm -v "%CD%:/app" -w /app mediminder:latest bash -c "flutter build apk --release"
+                    '''
                 }
             }
             post {
                 success {
+                    // Archive the built APK so it can be downloaded from Jenkins
                     archiveArtifacts artifacts: 'mediminder/build/app/outputs/flutter-apk/app-release.apk', fingerprint: true
                 }
             }
